@@ -53,10 +53,13 @@ onMounted(async () => {
 const sortedRecentlyPlayed = computed(() => {
   return [...songs.value]
     .filter(song => song.lastPlayed)
-    .sort((a, b) => new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime())
+    .sort((a, b) => {
+      const dateA = a.lastPlayed ? (typeof a.lastPlayed === 'string' ? new Date(a.lastPlayed).getTime() : a.lastPlayed) : 0;
+      const dateB = b.lastPlayed ? (typeof b.lastPlayed === 'string' ? new Date(b.lastPlayed).getTime() : b.lastPlayed) : 0;
+      return dateB - dateA;
+    })
     .slice(0, 7);
 });
-
 async function play(id: string) {
   await $music.setSong(id);
   $music.play();

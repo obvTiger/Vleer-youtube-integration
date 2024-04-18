@@ -2,14 +2,18 @@
   <div class="main element">
     <p class="element-title">Search</p>
     <div class="search">
-      <input type="text" v-model="searchTerm" @keyup.enter="searchSongs()" :disabled="isLoading"
-        placeholder="Search for songs" />
+      <div class="search-container">
+        <IconsSearch />
+        <input type="text" v-model="searchTerm" @keyup.enter="searchSongs()" :disabled="isLoading" placeholder="What would you like to play?" />
+      </div>
+      
+      
       <ul v-if="searchResults.length > 0">
         <li v-for="(song, index) in searchResults" :class="{ 'first-result': index === 0 }"
           @click="handleSongClick(song)">
           <img :src="song.thumbnail" alt="Cover image" />
-          <div>{{ song.title }}</div>
-          <div>{{ song.uploaderName }}</div>
+          <div class="musicTitle">{{ song.title }}</div>
+          <div class="artistName">{{ song.uploaderName }}</div>
         </li>
       </ul>
     </div>
@@ -40,11 +44,11 @@ async function searchSongs() {
     const response = await fetch(`https://pipedapi.wireway.ch/search?q=${searchTerm.value}&filter=music_songs`);
     const data = await response.json();
     searchResults.value = data.items
-      .filter(item => item.type !== 'channel')
-      .map(item => ({
+      .filter((item: { type: string; }) => item.type !== 'channel')
+      .map((item: { url: any; title: any; thumbnail: any; uploaderName: any; uploaderAvatar: any; duration: number; }) => ({
         url: item.url,
         title: item.title,
-        thumbnail: item.thumbnail,
+        thumbnail: item.thumbnail.replace(/h120/g, 'h1024').replace(/w120/g, 'w1024'),
         uploaderName: item.uploaderName,
         uploaderAvatar: item.uploaderAvatar,
         duration: item.duration,

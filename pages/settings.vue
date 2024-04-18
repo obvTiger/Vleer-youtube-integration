@@ -11,7 +11,7 @@
         </div>
         <div class="sliders">
           <div v-for="(freq, index) in frequencies" :key="freq" class="freq">
-            <input type="number" v-model.number="eqGains[index]" @input="updateEqGain(index, $event.target.valueAsNumber)" class="gain" step="0.1" min="-12" max="12">
+            <input type="number" v-model.number="eqGains[index]" @input="updateEqGain(index, $event.target.value ? parseFloat($event.target.value) : 0)" class="gain" step="0.1" min="-12" max="12">
             <input type="range" min="-12" max="12" step="0.1" v-model.number="eqGains[index]"
               @input="updateEqGain(index, eqGains[index])" class="range">
             <div class="hz">{{ formatFrequency(freq) }}</div>
@@ -34,7 +34,8 @@ const eqGains = ref(new Array(frequencies.length).fill(0.0));
 const eq = $settings.getEq()
 frequencies.forEach((freq, index) => {
   const freqKey = freq.toString();
-  eqGains.value[index] = Number(parseFloat(eq[freqKey as keyof EQSettings] || 0).toFixed(1));
+  const eqValue = eq[freqKey as keyof EQSettings];
+  eqGains.value[index] = Number(parseFloat(eqValue ? eqValue.toString() : '0').toFixed(1));
 });
 
 function updateEqGain(filterIndex: number, gain: number) {
@@ -44,7 +45,7 @@ function updateEqGain(filterIndex: number, gain: number) {
   eqGains.value[filterIndex] = formattedGain;
   $music.setEqGain(filterIndex, formattedGain);
   const eqSettingsMap = $settings.getEq();
-  eqSettingsMap[frequencies[filterIndex].toString() as keyof EQSettings] = formattedGain;
+  eqSettingsMap[frequencies[filterIndex].toString() as keyof EQSettings] = formattedGain.toString();
   $settings.setEq(eqSettingsMap as EQSettings);
 }
 
